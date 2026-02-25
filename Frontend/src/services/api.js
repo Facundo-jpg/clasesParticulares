@@ -1,125 +1,50 @@
-const API_BASE_URL = 'http://localhost:3000/api';
-
-const apiRequest = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
-
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  };
-
-  try {
-    const response = await fetch(url, config);
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || data.message || 'Error en la petición');
-    }
-
-    return data;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
-  }
-};
-
-// Autenticación
-export const authAPI = {
-  login: (credentials) =>
-    apiRequest('/usuarios/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    }),
-
-  register: (userData) =>
-    apiRequest('/usuarios/registro', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    }),
-
-  getUsuario: (id) =>
-    apiRequest(`/usuarios/usuario/${id}`),
-
-  actualizarUsuario: (id, datos) =>
-    apiRequest(`/usuarios/usuario/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(datos),
-    }),
-
-  getProfesores: () =>
-    apiRequest('/usuarios/profesores'),
-};
-
-// Clases
-export const clasesAPI = {
-  crear: (claseData) =>
-    apiRequest('/clases', {
-      method: 'POST',
-      body: JSON.stringify(claseData),
-    }),
-
-  listarDisponibles: (idMateria) =>
-    apiRequest(`/clases/disponibles${idMateria ? `?id_materia=${idMateria}` : ''}`),
-
-  inscribir: (idClase, idAlumno) =>
-    apiRequest(`/clases/${idClase}/inscribir`, {
-      method: 'POST',
-      body: JSON.stringify({ id_alumno: idAlumno }),
-    }),
-
-  listarPorAlumno: (idAlumno, estado) =>
-    apiRequest(`/clases/alumno/${idAlumno}${estado ? `?estado=${estado}` : ''}`),
-
-  listarPorProfesor: (idProfesor, estado) =>
-    apiRequest(`/clases/profesor/${idProfesor}${estado ? `?estado=${estado}` : ''}`),
-
-  getClase: (id) =>
-    apiRequest(`/clases/${id}`),
-
-  actualizar: (id, claseData) =>
-    apiRequest(`/clases/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(claseData),
-    }),
-
-  confirmar: (id) =>
-    apiRequest(`/clases/${id}/confirmar`, {
-      method: 'PUT',
-    }),
-
-  cancelar: (id) =>
-    apiRequest(`/clases/${id}/cancelar`, {
-      method: 'PUT',
-    }),
-
-  marcarRealizada: (id) =>
-    apiRequest(`/clases/${id}/realizada`, {
-      method: 'PUT',
-    }),
-
-  calificar: (id, calificacionData) =>
-    apiRequest(`/clases/${id}/calificar`, {
-      method: 'PUT',
-      body: JSON.stringify(calificacionData),
-    }),
-};
-
-// Materias
-export const materiasAPI = {
-  listar: () =>
-    apiRequest('/materias'),
-
-  getMateria: (id) =>
-    apiRequest(`/materias/${id}`),
-
-  getProfesoresPorMateria: (idMateria) =>
-    apiRequest(`/materias/${idMateria}/profesores`),
-
-  getMateriasPorProfesor: (idProfesor) =>
-    apiRequest(`/materias/profesor/${idProfesor}`),
-};
-
-export default { authAPI, clasesAPI, materiasAPI };
+ quiere que Copilot use para mejorar el borrador",
+  "inputA11yLabel": "Borrador con Copilot: crear mensaje",
+  "inputFooterGenerate": "Generar",
+  "inputFooterGenerate_titleCase": "Generar",
+  "inputFooterGenerateTooltip": "Generar",
+  "inputFooterPromptGuideTooltip": "Guía de mensajes",
+  "inputHeader": "Generar un borrador con Copilot",
+  "inputTextA11yLabel": "Aviso",
+  "insertBelowButtonTitle": "Insertar debajo",
+  "insertBelowButtonTitle_titleCase": "Insertar debajo",
+  "inspireMeLabel": "Inspirarme",
+  "inspireMeLabel_titleCase": "Obtener inspiración",
+  "inspireMeTooltip": "Copilot usa el contexto del documento para redactar una idea",
+  "ipePrompt": "¿Qué quiere que Copilot redacte?",
+  "keepItLabel": "Conservarlo",
+  "keepItLabel_titleCase": "Mantenerlo",
+  "learnMoreLink": "Más información",
+  "learnMoreLink_titleCase": "Más información",
+  "maxAttachmentWarning": "Incluya hasta {0} archivos en la descripción.",
+  "maxExceededFooter": "{0} {1}",
+  "maxExceededWarning": "Se superó el número de caracteres permitido.",
+  "messageBarText": "El contenido que se genera mediante inteligencia artificial podría contener imprecisiones o material confidencial. Asegúrese de comprobar la información.",
+  "messagesLabel": "Correos electrónicos",
+  "multiTurnHeader": "Para ajustar el borrador, agregue algunos detalles y regenere",
+  "multiTurnNextDraftA11yLabel": "Siguiente borrador, {0} de {1}",
+  "multiTurnNextDraftTooltip": "Siguiente borrador",
+  "multiTurnPreviousDraftA11yLabel": "Borrador anterior, {0} de {1}",
+  "multiTurnPreviousDraftTooltip": "Borrador anterior",
+  "multiTurnTextInputA11yLabel": "Para ajustar el borrador, agregue algunos detalles y regenere",
+  "latencyHitLCompletingText": "Se encontró el origen. Ajustando la búsqueda...",
+  "latencyHitLNoSourcesText": "No se encontraron orígenes adicionales. Generando un borrador para usted...",
+  "latencyHitLSearchingText": "Buscando más orígenes para usar en el borrador...",
+  "latencyIntermediateFileHeaderText": "Revisando la información...",
+  "latencyIntermediateHeaderText": "Uniendo todo...",
+  "latencyLoadingA11yLabel": "Borrador con Copilot: cargando",
+  "latencyLoadingHeaderText": "Creando un borrador...",
+  "latencyLoadingMultiTurnHeaderText": "Perfeccionando el borrador...",
+  "latencyOutputHeaderText": "Trabajando en ello...",
+  "latencyTextToTable": "Visualizando como una tabla...",
+  "lowOnCreditsCombinedText": "{0} {1} {2}",
+  "lowOnCreditsLinkText": "Comprobar el saldo",
+  "lowOnCreditsSentenceOne": "Los créditos se están agotando",
+  "lowOnCreditsSentenceTwo": "Los créditos de IA se recargan al principio de cada mes.",
+  "outputA11yLabel": "Borrador con Copilot: borrador listo",
+  "optionsToolbarA11yLabel": "Opciones",
+  "openAttachmentTooltip": "Abrir datos adjuntos",
+  "outofCreditsCombinedText": "{0} {1} {2}",
+  "outOfCreditsLinkText": "Obtener más créditos ahora",
+  "outOfCreditsSentenceOne": "No tienes créditos",
+  "outOfCreditsSent
