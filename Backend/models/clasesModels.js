@@ -122,9 +122,10 @@ exports.listarClasesPorProfesor = async (id_profesor, estado = null) => {
 exports.actualizarClase = async (id, datos) => {
     const campos = [];
     const valores = [];
+    const camposPermitidos = ['id_alumno', 'id_profesor', 'id_materia', 'fecha_clase', 'duracion_minutos', 'modalidad', 'link_online', 'direccion', 'precio_hora', 'notas', 'estado'];
 
     Object.keys(datos).forEach(key => {
-        if (datos[key] !== undefined && key !== 'id') {
+        if (datos[key] !== undefined && key !== 'id' && camposPermitidos.includes(key)) {
             campos.push(`${key} = ?`);
             valores.push(datos[key]);
         }
@@ -164,11 +165,17 @@ exports.calificarClase = async (id, calificacion_alumno, calificacion_profesor, 
     const campos = [];
     const valores = [];
 
-    if (calificacion_alumno !== undefined) {
+    if (calificacion_alumno !== undefined && calificacion_alumno !== null) {
+        if (calificacion_alumno < 1 || calificacion_alumno > 10) {
+            throw new Error('La calificación debe estar entre 1 y 10');
+        }
         campos.push('calificacion_alumno = ?');
         valores.push(calificacion_alumno);
     }
-    if (calificacion_profesor !== undefined) {
+    if (calificacion_profesor !== undefined && calificacion_profesor !== null) {
+        if (calificacion_profesor < 1 || calificacion_profesor > 10) {
+            throw new Error('La calificación debe estar entre 1 y 10');
+        }
         campos.push('calificacion_profesor = ?');
         valores.push(calificacion_profesor);
     }

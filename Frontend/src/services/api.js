@@ -1,50 +1,170 @@
- quiere que Copilot use para mejorar el borrador",
-  "inputA11yLabel": "Borrador con Copilot: crear mensaje",
-  "inputFooterGenerate": "Generar",
-  "inputFooterGenerate_titleCase": "Generar",
-  "inputFooterGenerateTooltip": "Generar",
-  "inputFooterPromptGuideTooltip": "Guía de mensajes",
-  "inputHeader": "Generar un borrador con Copilot",
-  "inputTextA11yLabel": "Aviso",
-  "insertBelowButtonTitle": "Insertar debajo",
-  "insertBelowButtonTitle_titleCase": "Insertar debajo",
-  "inspireMeLabel": "Inspirarme",
-  "inspireMeLabel_titleCase": "Obtener inspiración",
-  "inspireMeTooltip": "Copilot usa el contexto del documento para redactar una idea",
-  "ipePrompt": "¿Qué quiere que Copilot redacte?",
-  "keepItLabel": "Conservarlo",
-  "keepItLabel_titleCase": "Mantenerlo",
-  "learnMoreLink": "Más información",
-  "learnMoreLink_titleCase": "Más información",
-  "maxAttachmentWarning": "Incluya hasta {0} archivos en la descripción.",
-  "maxExceededFooter": "{0} {1}",
-  "maxExceededWarning": "Se superó el número de caracteres permitido.",
-  "messageBarText": "El contenido que se genera mediante inteligencia artificial podría contener imprecisiones o material confidencial. Asegúrese de comprobar la información.",
-  "messagesLabel": "Correos electrónicos",
-  "multiTurnHeader": "Para ajustar el borrador, agregue algunos detalles y regenere",
-  "multiTurnNextDraftA11yLabel": "Siguiente borrador, {0} de {1}",
-  "multiTurnNextDraftTooltip": "Siguiente borrador",
-  "multiTurnPreviousDraftA11yLabel": "Borrador anterior, {0} de {1}",
-  "multiTurnPreviousDraftTooltip": "Borrador anterior",
-  "multiTurnTextInputA11yLabel": "Para ajustar el borrador, agregue algunos detalles y regenere",
-  "latencyHitLCompletingText": "Se encontró el origen. Ajustando la búsqueda...",
-  "latencyHitLNoSourcesText": "No se encontraron orígenes adicionales. Generando un borrador para usted...",
-  "latencyHitLSearchingText": "Buscando más orígenes para usar en el borrador...",
-  "latencyIntermediateFileHeaderText": "Revisando la información...",
-  "latencyIntermediateHeaderText": "Uniendo todo...",
-  "latencyLoadingA11yLabel": "Borrador con Copilot: cargando",
-  "latencyLoadingHeaderText": "Creando un borrador...",
-  "latencyLoadingMultiTurnHeaderText": "Perfeccionando el borrador...",
-  "latencyOutputHeaderText": "Trabajando en ello...",
-  "latencyTextToTable": "Visualizando como una tabla...",
-  "lowOnCreditsCombinedText": "{0} {1} {2}",
-  "lowOnCreditsLinkText": "Comprobar el saldo",
-  "lowOnCreditsSentenceOne": "Los créditos se están agotando",
-  "lowOnCreditsSentenceTwo": "Los créditos de IA se recargan al principio de cada mes.",
-  "outputA11yLabel": "Borrador con Copilot: borrador listo",
-  "optionsToolbarA11yLabel": "Opciones",
-  "openAttachmentTooltip": "Abrir datos adjuntos",
-  "outofCreditsCombinedText": "{0} {1} {2}",
-  "outOfCreditsLinkText": "Obtener más créditos ahora",
-  "outOfCreditsSentenceOne": "No tienes créditos",
-  "outOfCreditsSent
+const API_URL = 'http://localhost:3000/api';
+
+// Función auxiliar para manejar respuestas
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error en la petición' }));
+    throw new Error(error.error || 'Error en la petición');
+  }
+  return response.json();
+};
+
+// API de Autenticación
+export const authAPI = {
+  login: async (credentials) => {
+    const response = await fetch(`${API_URL}/usuarios/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    });
+    return handleResponse(response);
+  },
+
+  registro: async (userData) => {
+    const response = await fetch(`${API_URL}/usuarios/registro`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
+    return handleResponse(response);
+  },
+
+  getUsuario: async (id) => {
+    const response = await fetch(`${API_URL}/usuarios/usuario/${id}`);
+    return handleResponse(response);
+  },
+
+  actualizarUsuario: async (id, datos) => {
+    const response = await fetch(`${API_URL}/usuarios/usuario/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+    return handleResponse(response);
+  },
+
+  getProfesores: async () => {
+    const response = await fetch(`${API_URL}/usuarios/profesores`);
+    return handleResponse(response);
+  }
+};
+
+// API de Materias
+export const materiasAPI = {
+  listar: async () => {
+    const response = await fetch(`${API_URL}/materias`);
+    return handleResponse(response);
+  },
+
+  getMateria: async (id) => {
+    const response = await fetch(`${API_URL}/materias/${id}`);
+    return handleResponse(response);
+  },
+
+  crear: async (materiaData) => {
+    const response = await fetch(`${API_URL}/materias`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(materiaData)
+    });
+    return handleResponse(response);
+  },
+
+  getMateriasPorProfesor: async (id_profesor) => {
+    const response = await fetch(`${API_URL}/materias/profesor/${id_profesor}`);
+    return handleResponse(response);
+  },
+
+  getProfesoresPorMateria: async (id_materia) => {
+    const response = await fetch(`${API_URL}/materias/${id_materia}/profesores`);
+    return handleResponse(response);
+  }
+};
+
+// API de Clases
+export const clasesAPI = {
+  crear: async (claseData) => {
+    const response = await fetch(`${API_URL}/clases`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(claseData)
+    });
+    return handleResponse(response);
+  },
+
+  listarDisponibles: async () => {
+    const response = await fetch(`${API_URL}/clases/disponibles`);
+    return handleResponse(response);
+  },
+
+  inscribirAlumno: async (id_clase, id_alumno) => {
+    const response = await fetch(`${API_URL}/clases/${id_clase}/inscribir`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_alumno })
+    });
+    return handleResponse(response);
+  },
+
+  getClase: async (id) => {
+    const response = await fetch(`${API_URL}/clases/${id}`);
+    return handleResponse(response);
+  },
+
+  listarPorAlumno: async (id_alumno) => {
+    const response = await fetch(`${API_URL}/clases/alumno/${id_alumno}`);
+    return handleResponse(response);
+  },
+
+  listarPorProfesor: async (id_profesor) => {
+    const response = await fetch(`${API_URL}/clases/profesor/${id_profesor}`);
+    return handleResponse(response);
+  },
+
+  actualizar: async (id, claseData) => {
+    const response = await fetch(`${API_URL}/clases/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(claseData)
+    });
+    return handleResponse(response);
+  },
+
+  confirmar: async (id) => {
+    const response = await fetch(`${API_URL}/clases/${id}/confirmar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return handleResponse(response);
+  },
+
+  cancelar: async (id) => {
+    const response = await fetch(`${API_URL}/clases/${id}/cancelar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return handleResponse(response);
+  },
+
+  marcarRealizada: async (id) => {
+    const response = await fetch(`${API_URL}/clases/${id}/realizada`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return handleResponse(response);
+  },
+
+  calificar: async (id, calificacionData) => {
+    const response = await fetch(`${API_URL}/clases/${id}/calificar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(calificacionData)
+    });
+    return handleResponse(response);
+  }
+};
+
+// API de Reservas (si se necesita en el futuro)
+export const reservasAPI = {
+  // Aquí se pueden agregar endpoints de reservas si existen
+};
