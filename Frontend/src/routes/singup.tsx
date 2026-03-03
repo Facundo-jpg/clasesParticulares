@@ -28,7 +28,7 @@ export default function Singup() {
 
         try {
             const userData = { nombre, apellido, telefono, password: contraseña, rol, email };
-            const response = await authAPI.register(userData);
+            const response = await authAPI.registro(userData);
             console.log('Registro exitoso:', response);
 
             setSuccess('Usuario registrado exitosamente. Puedes iniciar sesión.');

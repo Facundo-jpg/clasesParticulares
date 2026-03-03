@@ -23,9 +23,10 @@ exports.getUsuarioById = async (id) => {
 exports.actualizarUsuario = async (id, datos) => {
     const campos = [];
     const valores = [];
+    const camposPermitidos = ['nombre', 'apellido', 'telefono', 'password', 'foto_perfil'];
 
     Object.keys(datos).forEach(key => {
-        if (datos[key] !== undefined && key !== 'id') {
+        if (datos[key] !== undefined && key !== 'id' && camposPermitidos.includes(key)) {
             campos.push(`${key} = ?`);
             valores.push(datos[key]);
         }

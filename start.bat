@@ -4,10 +4,20 @@ echo   Iniciando EduControl - Full Stack
 echo ========================================
 echo.
 
+REM Configurar ruta de MySQL de XAMPP
+set MYSQL_PATH=C:\xampp\mysql\bin\mysql.exe
+
 echo [1/4] Verificando MySQL...
-mysql -u root -e "SELECT 1" >nul 2>&1
+if not exist "%MYSQL_PATH%" (
+    echo ERROR: No se encuentra MySQL en %MYSQL_PATH%
+    echo Por favor verifica que XAMPP este instalado en C:\xampp
+    echo O modifica la ruta MYSQL_PATH en este archivo.
+    pause
+    exit /b 1
+)
+"%MYSQL_PATH%" -u root -e "SELECT 1" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ERROR: MySQL no esta corriendo. Por favor inicia MySQL primero.
+    echo ERROR: MySQL no esta corriendo. Por favor inicia MySQL desde XAMPP.
     pause
     exit /b 1
 )
@@ -15,13 +25,12 @@ echo MySQL OK
 
 echo.
 echo [2/4] Verificando base de datos...
-mysql -u root -e "USE clasesparticulares" >nul 2>&1
+"%MYSQL_PATH%" -u root -e "USE clasesparticulares" >nul 2>&1
 if %errorlevel% neq 0 (
     echo Base de datos no encontrada. Creando...
-    mysql -u root < database.sql
+    "%MYSQL_PATH%" -u root < database.sql
     if %errorlevel% neq 0 (
         echo ERROR: No se pudo crear la base de datos.
-        echo Por favor ejecuta manualmente: mysql -u root -p ^< database.sql
         pause
         exit /b 1
     )

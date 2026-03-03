@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@material-design-icons/svg": "^0.14.15",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
@@ -28,6 +28,6 @@
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.11.0",
     "typescript": "~5.6.2",
-    "vite": "^5.4.10"
+    "vite": "^7.3.1"
   }
 }

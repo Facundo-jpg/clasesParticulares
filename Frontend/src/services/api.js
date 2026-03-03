@@ -1,125 +1,170 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:3000/api';
 
-const apiRequest = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
+// Función auxiliar para manejar respuestas
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error en la petición' }));
+    throw new Error(error.error || 'Error en la petición');
+  }
+  return response.json();
+};
 
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  };
+// API de Autenticación
+export const authAPI = {
+  login: async (credentials) => {
+    const response = await fetch(`${API_URL}/usuarios/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    });
+    return handleResponse(response);
+  },
 
-  try {
-    const response = await fetch(url, config);
-    const data = await response.json();
+  registro: async (userData) => {
+    const response = await fetch(`${API_URL}/usuarios/registro`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
+    return handleResponse(response);
+  },
 
-    if (!response.ok) {
-      throw new Error(data.error || data.message || 'Error en la petición');
-    }
+  getUsuario: async (id) => {
+    const response = await fetch(`${API_URL}/usuarios/usuario/${id}`);
+    return handleResponse(response);
+  },
 
-    return data;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
+  actualizarUsuario: async (id, datos) => {
+    const response = await fetch(`${API_URL}/usuarios/usuario/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+    return handleResponse(response);
+  },
+
+  getProfesores: async () => {
+    const response = await fetch(`${API_URL}/usuarios/profesores`);
+    return handleResponse(response);
   }
 };
 
-// Autenticación
-export const authAPI = {
-  login: (credentials) =>
-    apiRequest('/usuarios/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    }),
-
-  register: (userData) =>
-    apiRequest('/usuarios/registro', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    }),
-
-  getUsuario: (id) =>
-    apiRequest(`/usuarios/usuario/${id}`),
-
-  actualizarUsuario: (id, datos) =>
-    apiRequest(`/usuarios/usuario/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(datos),
-    }),
-
-  getProfesores: () =>
-    apiRequest('/usuarios/profesores'),
-};
-
-// Clases
-export const clasesAPI = {
-  crear: (claseData) =>
-    apiRequest('/clases', {
-      method: 'POST',
-      body: JSON.stringify(claseData),
-    }),
-
-  listarDisponibles: (idMateria) =>
-    apiRequest(`/clases/disponibles${idMateria ? `?id_materia=${idMateria}` : ''}`),
-
-  inscribir: (idClase, idAlumno) =>
-    apiRequest(`/clases/${idClase}/inscribir`, {
-      method: 'POST',
-      body: JSON.stringify({ id_alumno: idAlumno }),
-    }),
-
-  listarPorAlumno: (idAlumno, estado) =>
-    apiRequest(`/clases/alumno/${idAlumno}${estado ? `?estado=${estado}` : ''}`),
-
-  listarPorProfesor: (idProfesor, estado) =>
-    apiRequest(`/clases/profesor/${idProfesor}${estado ? `?estado=${estado}` : ''}`),
-
-  getClase: (id) =>
-    apiRequest(`/clases/${id}`),
-
-  actualizar: (id, claseData) =>
-    apiRequest(`/clases/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(claseData),
-    }),
-
-  confirmar: (id) =>
-    apiRequest(`/clases/${id}/confirmar`, {
-      method: 'PUT',
-    }),
-
-  cancelar: (id) =>
-    apiRequest(`/clases/${id}/cancelar`, {
-      method: 'PUT',
-    }),
-
-  marcarRealizada: (id) =>
-    apiRequest(`/clases/${id}/realizada`, {
-      method: 'PUT',
-    }),
-
-  calificar: (id, calificacionData) =>
-    apiRequest(`/clases/${id}/calificar`, {
-      method: 'PUT',
-      body: JSON.stringify(calificacionData),
-    }),
-};
-
-// Materias
+// API de Materias
 export const materiasAPI = {
-  listar: () =>
-    apiRequest('/materias'),
+  listar: async () => {
+    const response = await fetch(`${API_URL}/materias`);
+    return handleResponse(response);
+  },
 
-  getMateria: (id) =>
-    apiRequest(`/materias/${id}`),
+  getMateria: async (id) => {
+    const response = await fetch(`${API_URL}/materias/${id}`);
+    return handleResponse(response);
+  },
 
-  getProfesoresPorMateria: (idMateria) =>
-    apiRequest(`/materias/${idMateria}/profesores`),
+  crear: async (materiaData) => {
+    const response = await fetch(`${API_URL}/materias`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(materiaData)
+    });
+    return handleResponse(response);
+  },
 
-  getMateriasPorProfesor: (idProfesor) =>
-    apiRequest(`/materias/profesor/${idProfesor}`),
+  getMateriasPorProfesor: async (id_profesor) => {
+    const response = await fetch(`${API_URL}/materias/profesor/${id_profesor}`);
+    return handleResponse(response);
+  },
+
+  getProfesoresPorMateria: async (id_materia) => {
+    const response = await fetch(`${API_URL}/materias/${id_materia}/profesores`);
+    return handleResponse(response);
+  }
 };
 
-export default { authAPI, clasesAPI, materiasAPI };
+// API de Clases
+export const clasesAPI = {
+  crear: async (claseData) => {
+    const response = await fetch(`${API_URL}/clases`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(claseData)
+    });
+    return handleResponse(response);
+  },
+
+  listarDisponibles: async () => {
+    const response = await fetch(`${API_URL}/clases/disponibles`);
+    return handleResponse(response);
+  },
+
+  inscribirAlumno: async (id_clase, id_alumno) => {
+    const response = await fetch(`${API_URL}/clases/${id_clase}/inscribir`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_alumno })
+    });
+    return handleResponse(response);
+  },
+
+  getClase: async (id) => {
+    const response = await fetch(`${API_URL}/clases/${id}`);
+    return handleResponse(response);
+  },
+
+  listarPorAlumno: async (id_alumno) => {
+    const response = await fetch(`${API_URL}/clases/alumno/${id_alumno}`);
+    return handleResponse(response);
+  },
+
+  listarPorProfesor: async (id_profesor) => {
+    const response = await fetch(`${API_URL}/clases/profesor/${id_profesor}`);
+    return handleResponse(response);
+  },
+
+  actualizar: async (id, claseData) => {
+    const response = await fetch(`${API_URL}/clases/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(claseData)
+    });
+    return handleResponse(response);
+  },
+
+  confirmar: async (id) => {
+    const response = await fetch(`${API_URL}/clases/${id}/confirmar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return handleResponse(response);
+  },
+
+  cancelar: async (id) => {
+    const response = await fetch(`${API_URL}/clases/${id}/cancelar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return handleResponse(response);
+  },
+
+  marcarRealizada: async (id) => {
+    const response = await fetch(`${API_URL}/clases/${id}/realizada`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return handleResponse(response);
+  },
+
+  calificar: async (id, calificacionData) => {
+    const response = await fetch(`${API_URL}/clases/${id}/calificar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(calificacionData)
+    });
+    return handleResponse(response);
+  }
+};
+
+// API de Reservas (si se necesita en el futuro)
+export const reservasAPI = {
+  // Aquí se pueden agregar endpoints de reservas si existen
+};

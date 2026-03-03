@@ -22,9 +22,10 @@ exports.crearMateria = async (nombre, descripcion, nivel) => {
 exports.actualizarMateria = async (id, datos) => {
     const campos = [];
     const valores = [];
+    const camposPermitidos = ['nombre', 'descripcion', 'nivel', 'estado'];
 
     Object.keys(datos).forEach(key => {
-        if (datos[key] !== undefined && key !== 'id') {
+        if (datos[key] !== undefined && key !== 'id' && camposPermitidos.includes(key)) {
             campos.push(`${key} = ?`);
             valores.push(datos[key]);
         }
