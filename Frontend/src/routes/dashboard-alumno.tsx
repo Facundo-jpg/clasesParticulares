@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { clasesAPI, authAPI, materiasAPI } from "../services/api.js";
 import { useAuth } from "../auth/auth-provider.tsx";
+import { useToast } from "../components/useToast.ts";
+import { Toast } from "../components/Toast.tsx";
 import "./dashboard.css";
 
 export default function DashboardAlumno() {
@@ -17,6 +19,7 @@ export default function DashboardAlumno() {
   const [showReservaForm, setShowReservaForm] = useState(false);
   const [selectedClase, setSelectedClase] = useState(null);
   const auth = useAuth();
+  const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,9 +71,9 @@ export default function DashboardAlumno() {
       const reservadasResponse = await clasesAPI.listarPorAlumno(user.id);
       setClasesReservadas(reservadasResponse);
 
-      alert('Inscripción exitosa. Espera la confirmación del profesor.');
+      showToast('Inscripción exitosa. Espera la confirmación del profesor.', 'success');
     } catch (error) {
-      alert('Error: ' + error.message);
+      showToast('Error: ' + error.message, 'error');
     }
   };
 
@@ -84,27 +87,27 @@ export default function DashboardAlumno() {
       const reservadasResponse = await clasesAPI.listarPorAlumno(user.id);
       setClasesReservadas(reservadasResponse);
 
-      alert('Clase cancelada');
+      showToast('Clase cancelada', 'success');
     } catch (error) {
-      alert('Error al cancelar clase: ' + error.message);
+      showToast('Error al cancelar clase: ' + error.message, 'error');
     }
   };
 
   const handleReservarPersonalizada = async (formData) => {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const nuevaReserva = await clasesAPI.crear({
+      await clasesAPI.crear({
         ...formData,
         id_alumno: user.id
       });
 
       const reservadasResponse = await clasesAPI.listarPorAlumno(user.id);
-      setClasesReservadas([...reservadasResponse, nuevaReserva.clase]);
+      setClasesReservadas(reservadasResponse);
 
       setShowReservaForm(false);
-      alert('Solicitud de clase enviada exitosamente');
+      showToast('Solicitud de clase enviada exitosamente', 'success');
     } catch (error) {
-      alert('Error: ' + error.message);
+      showToast('Error: ' + error.message, 'error');
     }
   };
 
@@ -434,6 +437,19 @@ export default function DashboardAlumno() {
 
       {/* Modal para reserva personalizada */}
       {showReservaForm && <ReservaPersonalizadaForm />}
+
+      {/* Notificaciones Toast */}
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 10000 }}>
+        {toasts.map((toast, index) => (
+          <div key={toast.id} style={{ marginBottom: index > 0 ? '10px' : '0' }}>
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => removeToast(toast.id)}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

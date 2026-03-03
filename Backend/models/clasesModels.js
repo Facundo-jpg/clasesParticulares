@@ -56,6 +56,29 @@ exports.listarClasesPorAlumno = async (id_alumno, estado = null) => {
 }
 
 //LISTAR CLASES POR PROFESOR
+exports.listarClasesPorProfesor = async (id_profesor, estado = null) => {
+    let query = `
+        SELECT c.*,
+               u1.nombre as alumno_nombre, u1.apellido as alumno_apellido,
+               m.nombre as materia_nombre
+        FROM clases c
+        LEFT JOIN usuarios u1 ON c.id_alumno = u1.id
+        LEFT JOIN materias m ON c.id_materia = m.id
+        WHERE c.id_profesor = ?
+    `;
+    const params = [id_profesor];
+
+    if (estado) {
+        query += ' AND c.estado = ?';
+        params.push(estado);
+    }
+
+    query += ' ORDER BY c.fecha_clase DESC';
+
+    const [rows] = await db.query(query, params);
+    return rows;
+}
+
 //INSCRIBIR ALUMNO EN CLASE DISPONIBLE
 exports.inscribirAlumno = async (id_clase, id_alumno) => {
     const [result] = await db.query(
@@ -90,29 +113,6 @@ exports.listarClasesDisponibles = async (id_materia = null) => {
     }
 
     query += ' ORDER BY c.fecha_clase ASC';
-
-    const [rows] = await db.query(query, params);
-    return rows;
-}
-
-exports.listarClasesPorProfesor = async (id_profesor, estado = null) => {
-    let query = `
-        SELECT c.*,
-               u1.nombre as alumno_nombre, u1.apellido as alumno_apellido,
-               m.nombre as materia_nombre
-        FROM clases c
-        LEFT JOIN usuarios u1 ON c.id_alumno = u1.id
-        LEFT JOIN materias m ON c.id_materia = m.id
-        WHERE c.id_profesor = ?
-    `;
-    const params = [id_profesor];
-
-    if (estado) {
-        query += ' AND c.estado = ?';
-        params.push(estado);
-    }
-
-    query += ' ORDER BY c.fecha_clase DESC';
 
     const [rows] = await db.query(query, params);
     return rows;

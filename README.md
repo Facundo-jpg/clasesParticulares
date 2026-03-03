@@ -166,7 +166,7 @@ La base de datos incluye usuarios de ejemplo:
 - TypeScript
 - Vite
 - React Router DOM
-- Tailwind CSS
+- CSS Puro
 
 ## 🐛 Solución de Problemas
 

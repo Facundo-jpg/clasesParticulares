@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { clasesAPI, authAPI, materiasAPI } from "../services/api.js";
 import { useAuth } from "../auth/auth-provider.tsx";
 import DashboardAlumno from "./dashboard-alumno.tsx";
+import { useToast } from "../components/useToast.ts";
+import { Toast } from "../components/Toast.tsx";
 import "./dashboard.css";
 
 export default function Dashboard() {
@@ -17,6 +19,7 @@ export default function Dashboard() {
   const [showNewClaseForm, setShowNewClaseForm] = useState(false);
   const [editingClase, setEditingClase] = useState(null);
   const auth = useAuth();
+  const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,14 +33,8 @@ export default function Dashboard() {
             setClases(clasesProfesorResponse);
 
             // Cargar materias que enseña el profesor
-            try {
-              const materiasResponse = await materiasAPI.getMateriasPorProfesor(user.id);
-              setMaterias(materiasResponse);
-            } catch (e) {
-              // Si no tiene materias asignadas, cargar todas
-              const allMaterias = await materiasAPI.listar();
-              setMaterias(allMaterias);
-            }
+            const materiasResponse = await materiasAPI.listar();
+            setMaterias(materiasResponse);
           } else {
             // Es estudiante
             const clasesAlumnoResponse = await clasesAPI.listarPorAlumno(user.id);
@@ -80,11 +77,11 @@ export default function Dashboard() {
           const claseModificada = await clasesAPI.actualizar(editingClase.id, claseData);
           setClases(clases.map(c => c.id === editingClase.id ? claseModificada : c));
           setEditingClase(null);
-          alert('Clase modificada exitosamente');
+          showToast('Clase modificada exitosamente', 'success');
         } else {
           // Crear nueva clase (disponible para que los alumnos se inscriban)
           if (!claseData.fecha_clase || !claseData.id_materia) {
-            alert('Por favor complete la fecha y la materia');
+            showToast('Por favor complete la fecha y la materia', 'warning');
             return;
           }
 
@@ -93,7 +90,7 @@ export default function Dashboard() {
             id_alumno: 1 // Temporal hasta que un alumno se inscriba
           });
           setClases([...clases, nuevaClase.clase]);
-          alert('Clase creada exitosamente. Ahora está disponible para que los alumnos se inscriban.');
+          showToast('Clase creada exitosamente. Ahora está disponible para que los alumnos se inscriban.', 'success');
         }
       } else {
         // Es estudiante
@@ -103,7 +100,7 @@ export default function Dashboard() {
 
       setShowNewClaseForm(false);
     } catch (error) {
-      alert('Error: ' + error.message);
+      showToast('Error: ' + error.message, 'error');
     }
   };
 
@@ -115,9 +112,9 @@ export default function Dashboard() {
       setClases(clases.map(clase =>
         clase.id === id ? {...clase, estado: 'cancelada'} : clase
       ));
-      alert('Clase cancelada');
+      showToast('Clase cancelada', 'success');
     } catch (error) {
-      alert('Error al cancelar clase: ' + error.message);
+      showToast('Error al cancelar clase: ' + error.message, 'error');
     }
   };
 
@@ -127,9 +124,9 @@ export default function Dashboard() {
       setClases(clases.map(clase =>
         clase.id === id ? {...clase, estado: 'confirmada'} : clase
       ));
-      alert('Clase confirmada');
+      showToast('Clase confirmada', 'success');
     } catch (error) {
-      alert('Error al confirmar clase: ' + error.message);
+      showToast('Error al confirmar clase: ' + error.message, 'error');
     }
   };
 
@@ -139,9 +136,9 @@ export default function Dashboard() {
       setClases(clases.map(clase =>
         clase.id === id ? {...clase, estado: 'realizada'} : clase
       ));
-      alert('Clase marcada como realizada');
+      showToast('Clase marcada como realizada', 'success');
     } catch (error) {
-      alert('Error: ' + error.message);
+      showToast('Error: ' + error.message, 'error');
     }
   };
 
@@ -151,9 +148,9 @@ export default function Dashboard() {
       setClases(clases.map(clase =>
         clase.id === id ? {...clase, calificacion_alumno: calificacion, comentario_alumno: comentario} : clase
       ));
-      alert('Clase calificada');
+      showToast('Clase calificada', 'success');
     } catch (error) {
-      alert('Error al calificar: ' + error.message);
+      showToast('Error al calificar: ' + error.message, 'error');
     }
   };
 
@@ -167,15 +164,30 @@ export default function Dashboard() {
   // Componente para nueva/editar clase
   const NewClaseForm = () => {
     const [formData, setFormData] = useState({
-      id_profesor: editingClase?.id_profesor || '',
-      id_materia: editingClase?.id_materia || '',
-      fecha_clase: editingClase?.fecha_clase?.slice(0, 16) || '',
-      duracion_minutos: editingClase?.duracion_minutos || 60,
-      modalidad: editingClase?.modalidad || 'online',
-      link_online: editingClase?.link_online || '',
-      direccion: editingClase?.direccion || '',
-      precio_hora: editingClase?.precio_hora || ''
+      id_profesor: '',
+      id_materia: '',
+      fecha_clase: '',
+      duracion_minutos: 60,
+      modalidad: 'online',
+      link_online: '',
+      direccion: '',
+      precio_hora: ''
     });
+
+    useEffect(() => {
+      if (editingClase) {
+        setFormData({
+          id_profesor: editingClase.id_profesor || '',
+          id_materia: editingClase.id_materia || '',
+          fecha_clase: editingClase.fecha_clase?.slice(0, 16) || '',
+          duracion_minutos: editingClase.duracion_minutos || 60,
+          modalidad: editingClase.modalidad || 'online',
+          link_online: editingClase.link_online || '',
+          direccion: editingClase.direccion || '',
+          precio_hora: editingClase.precio_hora || ''
+        });
+      }
+    }, [editingClase]);
 
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -537,6 +549,19 @@ export default function Dashboard() {
 
       {/* Modal para nueva/editar clase */}
       {showNewClaseForm && <NewClaseForm />}
+
+      {/* Notificaciones Toast */}
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 10000 }}>
+        {toasts.map((toast, index) => (
+          <div key={toast.id} style={{ marginBottom: index > 0 ? '10px' : '0' }}>
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => removeToast(toast.id)}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

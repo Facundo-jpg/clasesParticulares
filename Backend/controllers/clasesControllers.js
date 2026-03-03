@@ -165,13 +165,17 @@ exports.marcarRealizada = async (req, res) => {
 exports.calificarClase = async (req, res) => {
     try {
         const { id } = req.params;
-        const { calificacion_alumno, calificacion_profesor, comentario_alumno, comentario_profesor } = req.body;
+        const { calificacion, comentario, calificacion_alumno, calificacion_profesor, comentario_alumno, comentario_profesor } = req.body;
 
-        if (!calificacion_alumno && !calificacion_profesor) {
+        // Soportar ambos formatos
+        const calAlumno = calificacion || calificacion_alumno;
+        const comAlumno = comentario || comentario_alumno;
+
+        if (!calAlumno && !calificacion_profesor) {
             return res.status(400).json({ error: 'Debes proporcionar al menos una calificación' });
         }
 
-        const calificada = await Clases.calificarClase(id, calificacion_alumno, calificacion_profesor, comentario_alumno, comentario_profesor);
+        const calificada = await Clases.calificarClase(id, calAlumno, calificacion_profesor, comAlumno, comentario_profesor);
 
         if (!calificada) {
             return res.status(404).json({ error: 'Clase no encontrada' });
